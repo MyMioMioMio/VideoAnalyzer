@@ -2,7 +2,11 @@ package com.example.videoanalyzer.ui
 
 import android.net.Uri
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -14,7 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.videoanalyzer.enums.AppStatus
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
+import java.util.Collections.list
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,13 +51,28 @@ fun VideoAnalyzerApp(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        // 点击 Menu 图标的逻辑
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "菜单"
-                        )
+                    if (analyzerUiState.appStatus == AppStatus.WAIT_FOR_IMPORT_VIDEO) {
+                        // 待导入视频时，显示菜单按钮
+                        IconButton(onClick = {
+                            // 点击 Menu 图标的逻辑
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "菜单"
+                            )
+                        }
+                    } else if (analyzerUiState.appStatus == AppStatus.ANALYZING) {
+                        // 分析视频时，显示返回按钮
+                        IconButton(onClick = {
+                            // 点击返回按钮的逻辑
+                            // 设置状态为 WAIT_FOR_IMPORT_VIDEO
+                            analyzerViewModel.updateAppStatus(AppStatus.WAIT_FOR_IMPORT_VIDEO)
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "返回"
+                            )
+                        }
                     }
                 },
                 actions = {
@@ -73,12 +94,23 @@ fun VideoAnalyzerApp(
                     .fillMaxSize()
                     .padding(contentPadding)
             ) {
-                // 主页面内容
-                VideoAnalyzerMainScreen(
-                    contentPadding = contentPadding,
-                    videoUri = analyzerUiState.videoUri,
-                    onImportVideoClick = onImportVideoClick
-                )
+                if (analyzerUiState.appStatus == AppStatus.WAIT_FOR_IMPORT_VIDEO)
+                {
+                    // 带导入视频，显示首页
+                    VideoAnalyzerMainScreen(
+                        contentPadding = contentPadding,
+                        videoUri = analyzerUiState.videoUri,
+                        onImportVideoClick = onImportVideoClick
+                    )
+                } else if (analyzerUiState.appStatus == AppStatus.ANALYZING) {
+                    //  分析视频，显示分析结果
+                    VideoAnalyzerResultScreen(
+                        contentPadding = contentPadding,
+                        videoUri = analyzerUiState.videoUri,
+                        textList = List<String>(50) { "test" }
+                    )
+                }
+
             }
         }
     )
@@ -117,10 +149,27 @@ fun VideoAnalyzerMainScreen(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (videoUri != Uri.EMPTY) {
-                Text(text = "已导入视频：${videoUri.lastPathSegment}")
-            }
             Text(text = "其他内容区域")
+        }
+    }
+}
+
+// 分析结果页面
+@Composable
+fun VideoAnalyzerResultScreen(
+    contentPadding: PaddingValues,
+    videoUri: Uri,
+    textList: List<String>
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        item {
+            Text(text = "视频Uri：${videoUri.lastPathSegment}", modifier = Modifier.padding(16.dp))
+        }
+        items(textList) { text ->
+            Text(text = text, modifier = Modifier.padding(16.dp))
         }
     }
 }

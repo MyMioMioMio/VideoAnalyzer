@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.videoanalyzer.enums.AppStatus
 import com.example.videoanalyzer.ui.VideoAnalyzerApp
 import com.example.videoanalyzer.ui.theme.VideoAnalyzerTheme
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     onResult = { uri ->
                         if (uri != null) {
                             viewModel.updateVideoUri(uri)
+                            viewModel.updateAppStatus(AppStatus.ANALYZING)
                         }
                     }
                 )
