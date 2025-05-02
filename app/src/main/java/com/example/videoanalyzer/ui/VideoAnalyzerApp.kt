@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.videoanalyzer.enums.AppStatus
@@ -54,17 +55,18 @@ fun VideoAnalyzerApp(
                     if (analyzerUiState.appStatus == AppStatus.WAIT_FOR_IMPORT_VIDEO) {
                         // 待导入视频时，显示菜单按钮
                         IconButton(onClick = {
-                            // 点击 Menu 图标的逻辑
+                            // TODO 点击 Menu 图标的逻辑
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
                                 contentDescription = "菜单"
                             )
                         }
-                    } else if (analyzerUiState.appStatus == AppStatus.ANALYZING) {
+                    } else if (analyzerUiState.appStatus != AppStatus.ANALYZING) {
                         // 分析视频时，显示返回按钮
                         IconButton(onClick = {
                             // 点击返回按钮的逻辑
+                            // TODO 需要清楚上次的结果等等
                             // 设置状态为 WAIT_FOR_IMPORT_VIDEO
                             analyzerViewModel.updateAppStatus(AppStatus.WAIT_FOR_IMPORT_VIDEO)
                         }) {
@@ -94,8 +96,7 @@ fun VideoAnalyzerApp(
                     .fillMaxSize()
                     .padding(contentPadding)
             ) {
-                if (analyzerUiState.appStatus == AppStatus.WAIT_FOR_IMPORT_VIDEO)
-                {
+                if (analyzerUiState.appStatus == AppStatus.WAIT_FOR_IMPORT_VIDEO) {
                     // 带导入视频，显示首页
                     VideoAnalyzerMainScreen(
                         contentPadding = contentPadding,
@@ -103,11 +104,19 @@ fun VideoAnalyzerApp(
                         onImportVideoClick = onImportVideoClick
                     )
                 } else if (analyzerUiState.appStatus == AppStatus.ANALYZING) {
-                    //  分析视频，显示分析结果
+                    // 分析视频中，显示圆形进度条，和提示字幕
+                    VideoAnalyzerProgress(
+                        contentPadding = contentPadding,
+                        currentFrameNumber = analyzerUiState.currentFrameNumber,
+                        frameTotal = analyzerUiState.frameTotal
+                    )
+
+                } else if (analyzerUiState.appStatus == AppStatus.ANALYZED) {
+                    //  分析视频完成，显示分析结果
                     VideoAnalyzerResultScreen(
                         contentPadding = contentPadding,
                         videoUri = analyzerUiState.videoUri,
-                        textList = List<String>(50) { "test" }
+                        textList = analyzerUiState.textList
                     )
                 }
 
@@ -132,9 +141,9 @@ fun VideoAnalyzerMainScreen(
         Button(
             onClick = onImportVideoClick,
             modifier = Modifier
-                .fillMaxWidth() // 填充整行
-                .aspectRatio(1f) // 设置宽高比为 1:1（正方形）
-                .padding(16.dp), // 添加内边距
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .padding(16.dp),
         ) {
             Text(
                 text = "导入视频",
@@ -171,5 +180,39 @@ fun VideoAnalyzerResultScreen(
         items(textList) { text ->
             Text(text = text, modifier = Modifier.padding(16.dp))
         }
+    }
+}
+
+// 分析视频中加载页面
+@Composable
+fun VideoAnalyzerProgress(
+    contentPadding: PaddingValues,
+    currentFrameNumber: Int,
+    frameTotal: Int
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        val percent = currentFrameNumber.toFloat() / frameTotal
+
+        CircularProgressIndicator(
+            progress = { percent },
+            modifier = Modifier.width(100.dp)
+        )
+
+        // 间距
+        Spacer(modifier = Modifier.height(100.dp))
+
+        Text(
+            text = "${(percent * 100).toInt()}%，正在分析视频，请稍候...",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            textAlign = TextAlign.Center
+        )
+        // TODO 执行语音提示
     }
 }

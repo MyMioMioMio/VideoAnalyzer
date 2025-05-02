@@ -31,6 +31,8 @@ class MainActivity : ComponentActivity() {
                         if (uri != null) {
                             viewModel.updateVideoUri(uri)
                             viewModel.updateAppStatus(AppStatus.ANALYZING)
+                            // TODO 协程分析视频
+                            viewModel.analyzeVideo()
                         }
                     }
                 )

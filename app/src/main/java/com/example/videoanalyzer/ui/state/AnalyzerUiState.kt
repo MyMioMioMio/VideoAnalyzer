@@ -9,4 +9,10 @@ data class AnalyzerUiState(
     val videoUri: Uri = Uri.EMPTY,
     // 应用状态
     val appStatus: AppStatus = AppStatus.WAIT_FOR_IMPORT_VIDEO,
+    // 识别结果
+    val textList: List<String> = ArrayList<String>(),
+    // 当前处理帧的编号
+    val currentFrameNumber: Int = 0,
+    // 帧总数
+    val frameTotal: Int = 1
 )
