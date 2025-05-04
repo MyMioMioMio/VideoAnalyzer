@@ -13,6 +13,8 @@ data class AnalyzerUiState(
     val textList: List<String> = ArrayList<String>(),
     // 当前处理帧的编号
     val currentFrameNumber: Int = 0,
-    // 帧总数
-    val frameTotal: Int = 1
+    // 视频帧总数
+    val frameTotal: Int = 1,
+    // 获取帧的时间间隔
+    val frameInterval: Long = 5000L
 )

@@ -16,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.videoanalyzer.R
 import com.example.videoanalyzer.enums.AppStatus
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
 import java.util.Collections.list
@@ -46,7 +48,7 @@ fun VideoAnalyzerApp(
                 ),
                 title = {
                     Text(
-                        text = "视频分析器",
+                        text = stringResource(R.string.app_name),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -59,7 +61,7 @@ fun VideoAnalyzerApp(
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
-                                contentDescription = "菜单"
+                                contentDescription = stringResource(R.string.top_menu)
                             )
                         }
                     } else if (analyzerUiState.appStatus != AppStatus.ANALYZING) {
@@ -72,7 +74,7 @@ fun VideoAnalyzerApp(
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "返回"
+                                contentDescription = stringResource(R.string.back)
                             )
                         }
                     }
@@ -83,7 +85,7 @@ fun VideoAnalyzerApp(
                     }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "更多选项"
+                            contentDescription = stringResource(R.string.more_selection)
                         )
                     }
                 },
@@ -146,12 +148,12 @@ fun VideoAnalyzerMainScreen(
                 .padding(16.dp),
         ) {
             Text(
-                text = "导入视频",
+                text = stringResource(R.string.import_video),
                 style = MaterialTheme.typography.titleLarge // 设置文字样式
             )
         }
 
-        // 其他内容（如果需要）
+        // 其他内容
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -175,7 +177,10 @@ fun VideoAnalyzerResultScreen(
             .fillMaxSize()
     ) {
         item {
-            Text(text = "视频Uri：${videoUri.lastPathSegment}", modifier = Modifier.padding(16.dp))
+            Text(
+                text = "视频Uri：${videoUri.lastPathSegment}",
+                modifier = Modifier.padding(16.dp)
+            )
         }
         items(textList) { text ->
             Text(text = text, modifier = Modifier.padding(16.dp))
@@ -207,11 +212,14 @@ fun VideoAnalyzerProgress(
         Spacer(modifier = Modifier.height(100.dp))
 
         Text(
-            text = "${(percent * 100).toInt()}%，正在分析视频，请稍候...",
+            text = stringResource(R.string.loading_text, "${(percent * 100).toInt()}%"),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             textAlign = TextAlign.Center
+        )
+        Text(
+            text = "需要分析的总帧数${ frameTotal }"
         )
         // TODO 执行语音提示
     }

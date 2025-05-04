@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                             viewModel.updateVideoUri(uri)
                             viewModel.updateAppStatus(AppStatus.ANALYZING)
                             // TODO 协程分析视频
-                            viewModel.analyzeVideo()
+                            viewModel.analyzeVideo(context = this@MainActivity)
                         }
                     }
                 )
