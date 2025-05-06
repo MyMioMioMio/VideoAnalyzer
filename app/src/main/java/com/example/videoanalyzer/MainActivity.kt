@@ -14,6 +14,7 @@ import com.example.videoanalyzer.service.SparkService
 import com.example.videoanalyzer.ui.VideoAnalyzerApp
 import com.example.videoanalyzer.ui.theme.VideoAnalyzerTheme
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
+import com.example.videoanalyzer.utils.Tts
 
 /**
  * 给盲人使用的视频分析应用
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
                     promptUser = getString(R.string.prompt_user),
                     context = this@MainActivity
                 )
+                // 初始化一下tts单例
+                Tts.init(this@MainActivity)
 
                 // 创建一个Launcher 来启动文件选择器
                 val launcher = rememberLauncherForActivityResult(

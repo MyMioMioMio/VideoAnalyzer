@@ -5,4 +5,6 @@
     <string name="more_selection">更多选项</string>
     <string name="import_video">导入视频</string>
     <string name="loading_text">%1$s，正在分析视频，请稍候…</string>
+    <string name="text_play">文本播放</string>
+    <string name="result_item_format">%d秒至%d秒：%s</string>
 </resources>

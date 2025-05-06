@@ -1,13 +1,17 @@
 package com.example.videoanalyzer.ui
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,10 +22,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.videoanalyzer.R
 import com.example.videoanalyzer.enums.AppStatus
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
+import com.example.videoanalyzer.utils.Tts
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,7 +122,8 @@ fun VideoAnalyzerApp(
                     VideoAnalyzerResultScreen(
                         contentPadding = contentPadding,
                         videoUri = analyzerUiState.videoUri,
-                        textList = analyzerUiState.textList
+                        textList = analyzerUiState.textList,
+                        frameInterval = analyzerUiState.frameInterval
                     )
                 }
 
@@ -168,8 +175,10 @@ fun VideoAnalyzerMainScreen(
 fun VideoAnalyzerResultScreen(
     contentPadding: PaddingValues,
     videoUri: Uri,
-    textList: List<String>
+    textList: List<String>,
+    frameInterval: Long
 ) {
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -180,8 +189,17 @@ fun VideoAnalyzerResultScreen(
                 modifier = Modifier.padding(16.dp)
             )
         }
-        items(textList) { text ->
-            Text(text = text, modifier = Modifier.padding(16.dp))
+        itemsIndexed(textList) { index, text ->
+            val startSecond = index * frameInterval / 1000
+            val endSecond = (index + 1) * frameInterval / 1000
+            val wholeText = stringResource(id = R.string.result_item_format, startSecond, endSecond, text)
+            ResultCard(
+                text = wholeText,
+                clickable = {
+                    // 播放语音
+                    Tts.speak(wholeText, wholeText)
+                }
+            )
         }
     }
 }
@@ -221,4 +239,48 @@ fun VideoAnalyzerProgress(
         )
         // TODO 执行语音提示
     }
+}
+
+@Composable
+fun ResultCard(
+    text: String,
+    clickable: ()-> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable{
+                // 播放语音
+                clickable()
+            },
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = stringResource(R.string.text_play),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = text,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = Int.MAX_VALUE // 允许显示多行文本
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun PreviewResultItem() {
+    ResultCard("test...test...") {}
 }
