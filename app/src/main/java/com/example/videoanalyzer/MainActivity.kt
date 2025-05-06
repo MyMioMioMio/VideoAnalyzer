@@ -10,7 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.videoanalyzer.enums.AppStatus
-import com.example.videoanalyzer.service.ModelVlService
+import com.example.videoanalyzer.service.SparkService
 import com.example.videoanalyzer.ui.VideoAnalyzerApp
 import com.example.videoanalyzer.ui.theme.VideoAnalyzerTheme
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
@@ -25,14 +25,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             VideoAnalyzerTheme {
                 val viewModel = viewModel<AnalyzerViewModel>()
+                //Log.d("ResourceCheck", "s_app_id: ${getString(R.string.prompt_user)}")
                 // 初始化一下api单例
-                ModelVlService.init(
-                    apiKey = getString(R.string.api_key),
-                    apiUrl = getString(R.string.api_url),
-                    promptSystem = getString(R.string.prompt_system),
+                SparkService.init(
+                    appId = getString(R.string.s_app_id),
+                    apiKey = getString(R.string.s_api_key),
+                    apiSecret = getString(R.string.s_api_secret),
                     promptUser = getString(R.string.prompt_user),
-                    modelId = getString(R.string.model_id)
+                    context = this@MainActivity
                 )
+
                 // 创建一个Launcher 来启动文件选择器
                 val launcher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.OpenDocument(),
@@ -45,6 +47,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
+
                 VideoAnalyzerApp(
                     analyzerViewModel = viewModel,
                     onImportVideoClick = {

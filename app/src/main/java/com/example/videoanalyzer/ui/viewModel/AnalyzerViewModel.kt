@@ -4,15 +4,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.videoanalyzer.enums.AppStatus
-import com.example.videoanalyzer.service.ModelVlService
+import com.example.videoanalyzer.service.SparkService
 import com.example.videoanalyzer.ui.state.AnalyzerUiState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import androidx.core.graphics.scale
 
 class AnalyzerViewModel:  ViewModel() {
     private val _uiState = MutableStateFlow(AnalyzerUiState())
@@ -83,15 +80,16 @@ class AnalyzerViewModel:  ViewModel() {
         }
     }
 
-    // TODO 异步处理视频（测试）
+    // 异步处理视频
     fun analyzeVideo(context: Context) {
-        // TODO 上传至api处理视频分析结果
+        // 上传至api处理视频分析结果
         viewModelScope.launch {
             // test(uiState.value.frameTotal)
             analyze(context)
         }
     }
 
+    /* 测试进度条临时函数
     suspend fun test(
         frameTotal: Int
     ) {
@@ -104,7 +102,7 @@ class AnalyzerViewModel:  ViewModel() {
         updateAnalyzeResult(textList)
         // 更新应用状态为分析完成
         updateAppStatus(AppStatus.ANALYZED)
-    }
+    }*/
 
     /**
      * 分析视频并提取关键帧文本信息
@@ -150,10 +148,9 @@ class AnalyzerViewModel:  ViewModel() {
 
                     if (bitmap != null) {
                         // 描述图像，输出文本
-                        val recognizedText = async {
-                            recognizeTextFromBitmap(bitmap)
-                        }
-                        textList.add(recognizedText.await())
+                        val text = recognizeTextFromBitmap(bitmap)
+                        Log.d("text", text)
+                        textList.add(text)
                     }
 
                     updateCurrentFrameNumber(i + 0)
@@ -178,19 +175,36 @@ class AnalyzerViewModel:  ViewModel() {
      *
      */
     private suspend fun recognizeTextFromBitmap(bitmap: Bitmap): String {
+        /*
         // 缩放图像到较小尺寸（512x512）
         val scaledBitmap = bitmap.scale(512, 512)
-
+        */
 
         // 将 Bitmap 转换为 JPG 格式的字节数组
+        val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
+        mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
+        if (byteArray.isEmpty()) {
+            Log.e("recognizeTextFromBitmap", "图像字节数组为空")
+            return "图像数据为空"
+        }
+        if (byteArray.size > 10 * 1024 * 1024) {
+            Log.e("recognizeTextFromBitmap", "图像大小超过限制")
+            return "图像过大"
+        }
 
+        Log.d("ImageSize", "图像字节长度: ${byteArray.size}")
+
+        /*
         // 将字节数组进行 Base64 编码
         val base64Image = Base64.encodeToString(byteArray, Base64.DEFAULT)
-
+        */
+        /*
         // 将 Base64 编码的图片数据传递给 API
         return ModelVlService.chatWithApi(base64Image)
+        */
+
+        return SparkService.runLLm(byteArray)
     }
 }

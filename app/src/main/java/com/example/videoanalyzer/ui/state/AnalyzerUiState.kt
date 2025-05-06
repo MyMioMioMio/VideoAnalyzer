@@ -16,5 +16,5 @@ data class AnalyzerUiState(
     // 视频帧总数
     val frameTotal: Int = 1,
     // 获取帧的时间间隔
-    val frameInterval: Long = 30000L
+    val frameInterval: Long = 10000L
 )

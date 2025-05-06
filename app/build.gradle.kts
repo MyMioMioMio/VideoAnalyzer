@@ -59,6 +59,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    /*
     // openai的一个第三方库
     implementation("com.aallam.openai:openai-client:4.0.1")
     // ktor引擎，选用okhttp
@@ -67,5 +68,8 @@ dependencies {
     implementation("io.ktor:ktor-client-plugins:3.1.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.2")
     implementation("io.ktor:ktor-client-content-negotiation:3.1.2")
+    */
 
+    // 引入星火的sdk
+    implementation(fileTree("./libs"))
 }
