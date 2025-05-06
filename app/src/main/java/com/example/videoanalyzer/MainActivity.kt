@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.videoanalyzer.enums.AppStatus
+import com.example.videoanalyzer.service.ModelVlService
 import com.example.videoanalyzer.ui.VideoAnalyzerApp
 import com.example.videoanalyzer.ui.theme.VideoAnalyzerTheme
 import com.example.videoanalyzer.ui.viewModel.AnalyzerViewModel
@@ -24,6 +25,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             VideoAnalyzerTheme {
                 val viewModel = viewModel<AnalyzerViewModel>()
+                // 初始化一下api单例
+                ModelVlService.init(
+                    apiKey = getString(R.string.api_key),
+                    apiUrl = getString(R.string.api_url),
+                    promptSystem = getString(R.string.prompt_system),
+                    promptUser = getString(R.string.prompt_user),
+                    modelId = getString(R.string.model_id)
+                )
                 // 创建一个Launcher 来启动文件选择器
                 val launcher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.OpenDocument(),

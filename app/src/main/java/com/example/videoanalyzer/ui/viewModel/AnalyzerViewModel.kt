@@ -1,15 +1,17 @@
 package com.example.videoanalyzer.ui.viewModel
 
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.videoanalyzer.enums.AppStatus
+import com.example.videoanalyzer.service.ModelVlService
 import com.example.videoanalyzer.ui.state.AnalyzerUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +19,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import androidx.core.graphics.scale
 
 class AnalyzerViewModel:  ViewModel() {
     private val _uiState = MutableStateFlow(AnalyzerUiState())
@@ -138,20 +142,22 @@ class AnalyzerViewModel:  ViewModel() {
                 for (i in 1 until frameTotal+1) {
                     // 如果frameTotal为1， 则提取首帧即可
                     val bitmap: Bitmap? = if (frameTotal == 1) {
-                        retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST)
+                        retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                     } else {
                         val timeMs = (i * intervalMs)
-                        retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
+                        retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                     }
 
                     if (bitmap != null) {
                         // 描述图像，输出文本
-                        val recognizedText = recognizeTextFromBitmap(bitmap)
-                        textList.add(recognizedText)
+                        val recognizedText = async {
+                            recognizeTextFromBitmap(bitmap)
+                        }
+                        textList.add(recognizedText.await())
                     }
 
                     updateCurrentFrameNumber(i + 0)
-                    delay(50L) // 模拟耗时
+                    //delay(50L) // 模拟耗时
                 }
 
                 // 更新分析结果
@@ -168,11 +174,23 @@ class AnalyzerViewModel:  ViewModel() {
     }
 
     /**
-     * 模拟图像识别方法
-     * TODO 后续会结合通义VL识别
+     * 图像识别方法
+     *
      */
-    private fun recognizeTextFromBitmap(bitmap: Bitmap): String {
-        // 这里只是返回一个占位符，实际应使用 OCR 库或 API
-        return "Recognized Text Frame ${System.currentTimeMillis()}"
+    private suspend fun recognizeTextFromBitmap(bitmap: Bitmap): String {
+        // 缩放图像到较小尺寸（512x512）
+        val scaledBitmap = bitmap.scale(512, 512)
+
+
+        // 将 Bitmap 转换为 JPG 格式的字节数组
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+
+        // 将字节数组进行 Base64 编码
+        val base64Image = Base64.encodeToString(byteArray, Base64.DEFAULT)
+
+        // 将 Base64 编码的图片数据传递给 API
+        return ModelVlService.chatWithApi(base64Image)
     }
 }
