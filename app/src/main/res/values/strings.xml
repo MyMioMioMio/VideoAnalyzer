@@ -7,4 +7,8 @@
     <string name="loading_text">%1$s，正在分析视频，请稍候…</string>
     <string name="text_play">文本播放</string>
     <string name="result_item_format">%d秒至%d秒：%s</string>
+    <string name="text_frameInterval">%s秒</string>
+    <string name="text_frameInterval_tip_low">帧间隔为%d秒，适合较详细的分析视频的画面。</string>
+    <string name="text_frameInterval_tip_middle">帧间隔为%d秒，兼具速度和细节的分析视频的画面。</string>
+    <string name="text_frameInterval_tip_quick">帧间隔为%d秒，适合快速分析视频的画面，但细节描述较差。</string>
 </resources>

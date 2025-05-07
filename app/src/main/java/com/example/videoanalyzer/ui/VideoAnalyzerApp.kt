@@ -16,6 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -107,7 +110,11 @@ fun VideoAnalyzerApp(
                     VideoAnalyzerMainScreen(
                         contentPadding = contentPadding,
                         videoUri = analyzerUiState.videoUri,
-                        onImportVideoClick = onImportVideoClick
+                        onImportVideoClick = onImportVideoClick,
+                        changeFrameInterval = { frameInterval ->
+                            analyzerViewModel.updateFrameInterval(frameInterval)
+                        },
+                        frameInterval = analyzerUiState.frameInterval
                     )
                 } else if (analyzerUiState.appStatus == AppStatus.ANALYZING) {
                     // 分析视频中，显示圆形进度条，和提示字幕
@@ -137,7 +144,9 @@ fun VideoAnalyzerApp(
 fun VideoAnalyzerMainScreen(
     contentPadding: PaddingValues,
     videoUri: Uri,
-    onImportVideoClick: () -> Unit
+    onImportVideoClick: () -> Unit,
+    changeFrameInterval: (Long) -> Unit,
+    frameInterval: Long
 ) {
     Column(
         modifier = Modifier
@@ -159,13 +168,31 @@ fun VideoAnalyzerMainScreen(
         }
 
         // 其他内容
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
-            contentAlignment = Alignment.Center
         ) {
-            Text(text = "其他内容区域")
+            Text(
+                text = "每隔几秒处理一帧？",
+                textAlign = TextAlign.Left,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SelectFrameIntervalButton(
+                modifier = Modifier.fillMaxWidth(),
+                frameInterval = frameInterval,
+                changeFrameInterval = changeFrameInterval
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 提示该选项的后果
+            TipText(
+                frameInterval = frameInterval,
+                textAlign = TextAlign.Left
+            )
         }
     }
 }
@@ -241,6 +268,7 @@ fun VideoAnalyzerProgress(
     }
 }
 
+// 结果项展示
 @Composable
 fun ResultCard(
     text: String,
@@ -278,6 +306,53 @@ fun ResultCard(
     }
 }
 
+// 选择帧间隔按钮
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectFrameIntervalButton(
+    modifier: Modifier,
+    frameInterval: Long,
+    changeFrameInterval: (frameInterval:  Long) -> Unit
+) {
+    val options = listOf("5", "10", "30")
+
+    SingleChoiceSegmentedButtonRow (
+        modifier = modifier
+    ) {
+        options.forEachIndexed { index, label ->
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = options.size
+                ),
+                onClick = { changeFrameInterval(label.toLong() * 1000L) },
+                selected = label.toLong() * 1000L == frameInterval,
+                label = { Text(
+                    text = stringResource(R.string.text_frameInterval, label)
+                ) }
+            )
+        }
+    }
+}
+
+// 帧间隔的提示
+@Composable
+fun TipText(
+    frameInterval: Long,
+    textAlign: TextAlign
+) {
+    val text: String = when (frameInterval) {
+        5000L -> stringResource(R.string.text_frameInterval_tip_low, frameInterval / 1000)
+        10000L -> stringResource(R.string.text_frameInterval_tip_middle, frameInterval / 1000)
+        30000L -> stringResource(R.string.text_frameInterval_tip_quick, frameInterval / 1000)
+        else -> "没有选择帧间隔！"
+    }
+    Text(
+        text = text,
+        textAlign = textAlign,
+        style = MaterialTheme.typography.titleSmall
+    )
+}
 
 @Preview
 @Composable

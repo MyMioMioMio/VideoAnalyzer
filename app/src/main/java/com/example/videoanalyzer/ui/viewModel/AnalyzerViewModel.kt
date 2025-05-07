@@ -80,6 +80,17 @@ class AnalyzerViewModel:  ViewModel() {
         }
     }
 
+    // 修改帧间隔
+    fun updateFrameInterval(
+        frameInterval: Long
+    ) {
+        _uiState.update { currentUpdate ->
+            currentUpdate.copy(
+                frameInterval = frameInterval
+            )
+        }
+    }
+
     // 异步处理视频
     fun analyzeVideo(context: Context) {
         // 上传至api处理视频分析结果
