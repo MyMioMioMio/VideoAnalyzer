@@ -127,8 +127,6 @@ fun VideoAnalyzerApp(
                 } else if (analyzerUiState.appStatus == AppStatus.ANALYZED) {
                     //  分析视频完成，显示分析结果
                     VideoAnalyzerResultScreen(
-                        contentPadding = contentPadding,
-                        videoUri = analyzerUiState.videoUri,
                         textList = analyzerUiState.textList,
                         frameInterval = analyzerUiState.frameInterval
                     )
@@ -200,22 +198,20 @@ fun VideoAnalyzerMainScreen(
 // 分析结果页面
 @Composable
 fun VideoAnalyzerResultScreen(
-    contentPadding: PaddingValues,
-    videoUri: Uri,
     textList: List<String>,
-    frameInterval: Long
+    frameInterval: Long,
 ) {
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        // 操作按钮
         item {
-            Text(
-                text = "视频Uri：${videoUri.lastPathSegment}",
-                modifier = Modifier.padding(16.dp)
+            ResultOperationButton(
+                textList = textList
             )
         }
+        // 结果项
         itemsIndexed(textList) { index, text ->
             val startSecond = index * frameInterval / 1000
             val endSecond = (index + 1) * frameInterval / 1000
@@ -352,6 +348,44 @@ fun TipText(
         textAlign = textAlign,
         style = MaterialTheme.typography.titleSmall
     )
+}
+
+// 结果页面操作按钮
+@Composable
+fun ResultOperationButton(
+    textList: List<String>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp), // 上下外边距
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 全部播放
+            Button(
+                onClick = {
+                    textList.forEach { it -> Tts.speak(it, it) }
+                }
+            ) {
+                Text(stringResource(R.string.button_all_play))
+            }
+
+            Spacer(modifier = Modifier.width(16.dp)) // 按钮之间间隔
+
+            // 取消播放
+            Button(
+                onClick = {
+                    Tts.cancel()
+                }
+            ) {
+                Text(stringResource(R.string.button_cancel_play))
+            }
+        }
+    }
 }
 
 @Preview

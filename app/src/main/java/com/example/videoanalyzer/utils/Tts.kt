@@ -22,8 +22,15 @@ object Tts {
         }
     }
 
+    // 播放语音
     fun speak(text: String, utteranceId: String) {
+        // 队列播放
         tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
+    }
+
+    // 取消播放
+    fun cancel() {
+        tts.stop()
     }
 
     // 释放资源方法

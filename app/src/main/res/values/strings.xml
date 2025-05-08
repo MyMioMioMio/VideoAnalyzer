@@ -11,4 +11,6 @@
     <string name="text_frameInterval_tip_low">帧间隔为%d秒，适合较详细的分析视频的画面。</string>
     <string name="text_frameInterval_tip_middle">帧间隔为%d秒，兼具速度和细节的分析视频的画面。</string>
     <string name="text_frameInterval_tip_quick">帧间隔为%d秒，适合快速分析视频的画面，但细节描述较差。</string>
+    <string name="button_all_play">全部播放</string>
+    <string name="button_cancel_play">取消播放</string>
 </resources>
