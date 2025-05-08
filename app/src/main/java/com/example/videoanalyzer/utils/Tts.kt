@@ -25,4 +25,12 @@ object Tts {
     fun speak(text: String, utteranceId: String) {
         tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
     }
+
+    // 释放资源方法
+    fun ttsOnDestroy() {
+        if (tts != null) {
+            tts.stop()       // 停止当前播放
+            tts.shutdown()   // 释放资源
+        }
+    }
 }

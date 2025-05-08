@@ -88,6 +88,8 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        // 释放语音引擎的资源
+        Tts.ttsOnDestroy()
         super.onDestroy()
         Log.d(TAG, "onDestroy Called")
     }
