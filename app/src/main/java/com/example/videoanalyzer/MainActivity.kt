@@ -44,8 +44,9 @@ class MainActivity : ComponentActivity() {
                     onResult = { uri ->
                         if (uri != null) {
                             viewModel.updateVideoUri(uri)
+                            viewModel.updateCurrentFrameNumber(0)
                             viewModel.updateAppStatus(AppStatus.ANALYZING)
-                            // TODO 协程分析视频
+                            // 协程分析视频
                             viewModel.analyzeVideo(context = this@MainActivity)
                         }
                     }

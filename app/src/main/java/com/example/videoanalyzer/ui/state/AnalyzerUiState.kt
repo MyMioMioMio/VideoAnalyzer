@@ -2,6 +2,7 @@ package com.example.videoanalyzer.ui.state
 
 import android.net.Uri
 import com.example.videoanalyzer.enums.AppStatus
+import com.example.videoanalyzer.models.HistoryList
 
 // 视频分析器UI状态
 data class AnalyzerUiState(
@@ -16,5 +17,7 @@ data class AnalyzerUiState(
     // 视频帧总数
     val frameTotal: Int = 1,
     // 获取帧的时间间隔
-    val frameInterval: Long = 10000L
+    val frameInterval: Long = 10000L,
+    // 临时历史记录列表
+    val tempHistoryList: List<HistoryList> = ArrayList<HistoryList>()
 )

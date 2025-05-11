@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.videoanalyzer.enums.AppStatus
+import com.example.videoanalyzer.models.HistoryList
 import com.example.videoanalyzer.service.SparkService
 import com.example.videoanalyzer.ui.state.AnalyzerUiState
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +61,7 @@ class AnalyzerViewModel:  ViewModel() {
 
     // 更新视频分析结果
     fun updateAnalyzeResult(
-        textList: ArrayList<String>
+        textList: List<String>
     ) {
         _uiState.update { currentUpdate ->
             currentUpdate.copy(
@@ -88,6 +89,22 @@ class AnalyzerViewModel:  ViewModel() {
             currentUpdate.copy(
                 frameInterval = frameInterval
             )
+        }
+    }
+
+    // 添加历史记录
+    fun addHistory(
+        history: HistoryList
+    ) {
+        // 添加到历史记录列表中
+        _uiState.update { currentState ->
+            val updatedTempHistoryList = currentState.tempHistoryList.toMutableList().apply {
+                // 防止重复添加
+                if (!this.any{it.uri == history.uri}) {
+                    add(history) // 将新的 history 放入一个新的拷贝自TempHistoryList的ArrayList
+                }
+            }
+            currentState.copy(tempHistoryList = updatedTempHistoryList)
         }
     }
 
