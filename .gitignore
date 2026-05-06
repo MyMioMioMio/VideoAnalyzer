@@ -6,3 +6,6 @@
 
 # 排除含 API 凭据的配置文件
 app/src/main/res/values/config.xml
+
+# 排除简历文件夹
+/简历/
